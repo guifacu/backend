@@ -1,38 +1,63 @@
-import { FastifyInstance } from 'fastify';
-import { Transaction } from '../entities/transaction';
+import { FastifyInstance } from "fastify";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function transactionsRoutes(app: FastifyInstance) {
-  app.get('/transactions', async () => {
-    return Transaction.getAll();
+
+  app.get("/transactions", async () => {
+    return prisma.transaction.findMany({
+      include: {
+        Category: true,
+        Bank: true,
+      },
+    });
   });
 
-  app.post('/transactions', async (req) => {
-    const { title, amount, type, categoryId, bankId } = req.body as {
+  app.post("/transactions", async (request) => {
+    const { title, amount, type, categoryId, bankId } = request.body as {
       title: string;
       amount: number;
-      type: 'income' | 'expense';
+      type: "income" | "expense";
       categoryId: string;
       bankId: string;
     };
 
-    return Transaction.create({ title, amount, type, categoryId, bankId });
+    return prisma.transaction.create({
+      data: {
+        title,
+        amount,
+        type,
+        categoryId,
+        bankId,
+      },
+    });
   });
 
-  app.patch('/transactions/:id', async (req) => {
-    const { id } = req.params as { id: string };
-    const body = req.body as {
+  app.patch("/transactions/:id", async (request) => {
+    const { id } = request.params as { id: string };
+    const { title, amount, type, categoryId, bankId } = request.body as {
       title?: string;
       amount?: number;
-      type?: 'income' | 'expense';
+      type?: "income" | "expense";
       categoryId?: string;
       bankId?: string;
     };
 
-    return Transaction.update(id, body);
+    return prisma.transaction.update({
+      where: { id },
+      data: {
+        title,
+        amount,
+        type,
+        categoryId,
+        bankId,
+      },
+    });
   });
 
-  app.delete('/transactions/:id', async (req) => {
-    const { id } = req.params as { id: string };
-    return Transaction.delete(id);
+  app.delete("/transactions/:id", async (request) => {
+    const { id } = request.params as { id: string };
+    return prisma.transaction.delete({ where: { id } });
   });
 }

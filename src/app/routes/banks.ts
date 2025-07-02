@@ -1,22 +1,34 @@
-import { FastifyInstance } from 'fastify';
-import { Bank } from '../entities/bank';
+import { FastifyInstance } from "fastify";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function banksRoutes(app: FastifyInstance) {
-  app.get('/banks', async () => Bank.getAll());
 
-  app.post('/banks', async (req) => {
-    const { name } = req.body as { name: string };
-    return Bank.create({ name });
+  app.get("/banks", async () => {
+    return prisma.bank.findMany();
   });
 
-  app.patch('/banks/:id', async (req) => {
-    const { id } = req.params as { id: string };
-    const body = req.body as { name?: string };
-    return Bank.update(id, body);
+  app.post("/banks", async (request) => {
+    const { name } = request.body as { name: string };
+    return prisma.bank.create({ data: { name } });
   });
 
-  app.delete('/banks/:id', async (req) => {
-    const { id } = req.params as { id: string };
-    return Bank.delete(id);
+  app.patch("/banks/:id", async (request) => {
+    const { id } = request.params as { id: string };
+    const { name } = request.body as { name?: string };
+
+    return prisma.bank.update({
+      where: { id },
+      data: { name },
+    });
+  });
+
+  app.delete("/banks/:id", async (request) => {
+    const { id } = request.params as { id: string };
+    return prisma.bank.delete({ where: { id } });
   });
 }
+
+
+
