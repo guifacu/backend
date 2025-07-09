@@ -12,12 +12,6 @@ type TransactionData = {
 export class Transaction extends Entity {
   static data: Transaction[] = [];
 
-  title: string;
-  amount: number;
-  type: TransactionType;
-  categoryId: string;
-  bankId: string;
-
   constructor(data: TransactionData) {
     super();
     Object.assign(this, data);

@@ -11,3 +11,6 @@ app.register(banksRoutes);
 app.register(categoriesRoutes);
 app.register(transactionsRoutes);
 
+app.listen({ port: 3000 }).then(() => {
+  console.log('🚀 Server running at http://localhost:3000');
+});
